@@ -6,10 +6,9 @@ import lombok.*;
 import javax.persistence.*;
 import java.math.BigDecimal;
 
-import static org.hibernate.id.SequenceGenerator.SEQUENCE;
-
 @Builder
-@Getter @Setter
+@Getter
+@Setter
 @Entity
 @Table(name = "products")
 @NoArgsConstructor
