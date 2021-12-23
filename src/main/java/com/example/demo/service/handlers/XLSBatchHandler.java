@@ -1,51 +1,55 @@
-package com.example.demo.service;
+package com.example.demo.service.handlers;
 
 import com.example.demo.domain.MeasureUnit;
 import com.example.demo.entity.Product;
 import com.example.demo.exception.ParsingProductException;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.service.BatchFileHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 
 import static java.lang.System.nanoTime;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-public class BatchProcessor implements BatchFileProcessorService {
+public class XLSBatchHandler extends BatchFileHandler {
     private static final int BATCH_SIZE = 100;
 
     private final ProductRepository repository;
 
     @Override
+    public boolean canHandle(MultipartFile file) {
+        var originalFilename = file.getOriginalFilename();
+        return originalFilename != null && (originalFilename.endsWith(".xlsx") || originalFilename.endsWith(".xls"));
+    }
+
     public void process(MultipartFile file) {
         Objects.requireNonNull(file);
         log.info("Starting processing file: {}, size: {} (in bytes)", file.getOriginalFilename(), file.getSize());
         try (InputStream is = file.getInputStream();
              XSSFWorkbook workbook = new XSSFWorkbook(is)) {
-            XSSFSheet sheet = workbook.getSheetAt(0);
+            var sheet = workbook.getSheetAt(0);
             long totalRowsProcessed = 0;
             long startTime = nanoTime();
 
-            Iterator<Row> rowIterator = sheet.iterator();
+            var rowIterator = sheet.iterator();
             skipFirstRow(rowIterator);
-            List<Product> products = new ArrayList<>(BATCH_SIZE);
+            var products = new ArrayList<Product>(BATCH_SIZE);
             while (rowIterator.hasNext()) {
-                Row row = rowIterator.next();
-                Product product = mapRowToProduct(row);
+                var row = rowIterator.next();
+                var product = mapRowToProduct(row);
                 products.add(product);
                 if (products.size() == BATCH_SIZE) {
                     if (log.isTraceEnabled()) {
@@ -72,6 +76,7 @@ public class BatchProcessor implements BatchFileProcessorService {
         }
     }
 
+
     private Product mapRowToProduct(Row row) {
         try {
             return Product.builder()
@@ -93,6 +98,5 @@ public class BatchProcessor implements BatchFileProcessorService {
             throw new IllegalStateException("Document is empty");
         }
     }
-
 
 }
