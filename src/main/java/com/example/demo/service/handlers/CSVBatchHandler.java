@@ -1,5 +1,6 @@
 package com.example.demo.service.handlers;
 
+import com.example.demo.exception.BatchHandleException;
 import com.example.demo.service.BatchFileHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ public class CSVBatchHandler extends BatchFileHandler {
     }
 
     public void process(MultipartFile file) {
-        throw new UnsupportedOperationException();
+        throw new BatchHandleException("This logic hasn't been implemented yet");
     }
 
 }

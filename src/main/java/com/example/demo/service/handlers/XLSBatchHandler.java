@@ -38,11 +38,11 @@ public class XLSBatchHandler extends BatchFileHandler {
     public void process(MultipartFile file) {
         Objects.requireNonNull(file);
         log.info("Starting processing file: {}, size: {} (in bytes)", file.getOriginalFilename(), file.getSize());
+        long startTime = nanoTime();
         try (InputStream is = file.getInputStream();
              XSSFWorkbook workbook = new XSSFWorkbook(is)) {
             var sheet = workbook.getSheetAt(0);
             long totalRowsProcessed = 0;
-            long startTime = nanoTime();
 
             var rowIterator = sheet.iterator();
             skipFirstRow(rowIterator);
