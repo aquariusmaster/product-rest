@@ -49,7 +49,7 @@ curl --location --request PUT 'http://localhost:8881/products/2' \
 }'
 ```
 
-Batch uploading (curently supports only `xlsx` files):
+Batch uploading (curently supports only `xlsx` files, example: [product.xlsx](product.xlsx)):
 
 ```shell
 curl --location --request POST 'http://localhost:8881/products/batch' \
